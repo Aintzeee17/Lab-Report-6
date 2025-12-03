@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Quiz Application</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Web Development Quiz</h1>
+            <p>Test your knowledge of HTML, CSS, and JavaScript!</p>
+        </header>
+
+        <main id="quiz-app">
+            <section id="question-area" class="card">
+                <div id="timer-display">Time Left: <span id="timer-countdown">10</span>s</div>
+                <h2 id="question-text">Click Start Quiz to begin.</h2>
+                <div id="options-container">
+                    <p class="placeholder-text">Press the button below to start the quiz.</p>
+                </div>
+            </section>
+            
+            <section id="feedback-section" class="card">
+                <p id="feedback-message" aria-live="polite">&nbsp;</p>
+            </section>
+
+            <section id="controls">
+                <button id="start-btn" onclick="startQuiz()">Start Quiz</button>
+                <button id="submit-btn" onclick="checkAnswer()" disabled>Submit Answer</button>
+                <button id="next-btn" onclick="nextQuestion()" disabled>Next Question</button>
+            </section>
+        </main>
+
+        <footer>
+            <p id="score-display">Current Score: 0 / 0</p>
+        </footer>
+    </div>
+    
+    <script>
+        // ======= Quiz Data =======
+        const quizQuestions = [
+            {
+                question: "What does HTML stand for?",
+                options: ["Hyper Text Markup Language", "High Tech Machine Learning", "Hot Tea Makes Life", "Home Tool Markup Language"],
+                answer: 0
+            },
+            {
+                question: "Which CSS property is used to change text color?",
+                options: ["color", "background-color", "font-size", "text-decoration"],
+                answer: 0
+            },
+            {
+                question: "Which JavaScript keyword declares a variable?",
+                options: ["let", "define", "various", "constant"],
+                answer: 0
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const questionText = document.getElementById("question-text");
+        const optionsContainer = document.getElementById("options-container");
+        const submitBtn = document.getElementById("submit-btn");
+        const nextBtn = document.getElementById("next-btn");
+        const feedbackMessage = document.getElementById("feedback-message");
+        const scoreDisplay = document.getElementById("score-display");
+
+        // ======= Functions =======
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreDisplay.textContent = `Current Score: ${score} / ${quizQuestions.length}`;
+            feedbackMessage.textContent = "";
+            showQuestion();
+            submitBtn.disabled = false;
+            nextBtn.disabled = true;
+            document.getElementById("start-btn").disabled = true;
+        }
+
+        function showQuestion() {
+            const q = quizQuestions[currentQuestionIndex];
+            questionText.textContent = q.question;
+
+            optionsContainer.innerHTML = "";
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement("button");
+                btn.className = "option";
+                btn.textContent = opt;
+                btn.onclick = () => selectOption(index);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        let selectedOption = null;
+
+        function selectOption(index) {
+            selectedOption = index;
+            // Highlight selection
+            Array.from(optionsContainer.children).forEach((btn, i) => {
+                btn.classList.toggle("selected", i === index);
+            });
+        }
+
+        function checkAnswer() {
+            if (selectedOption === null) {
+                alert("Please select an option!");
+                return;
+            }
+            const correctIndex = quizQuestions[currentQuestionIndex].answer;
+            if (selectedOption === correctIndex) {
+                feedbackMessage.textContent = "Correct!";
+                feedbackMessage.className = "correct-feedback";
+                score++;
+            } else {
+                feedbackMessage.textContent = `Incorrect! Correct answer: ${quizQuestions[currentQuestionIndex].options[correctIndex]}`;
+                feedbackMessage.className = "incorrect-feedback";
+            }
+            scoreDisplay.textContent = `Current Score: ${score} / ${quizQuestions.length}`;
+            submitBtn.disabled = true;
+            nextBtn.disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= quizQuestions.length) {
+                questionText.textContent = "Quiz Completed!";
+                optionsContainer.innerHTML = "";
+                submitBtn.disabled = true;
+                nextBtn.disabled = true;
+                document.getElementById("start-btn").disabled = false;
+                feedbackMessage.textContent = `Final Score: ${score} / ${quizQuestions.length}`;
+                feedbackMessage.className = "correct-feedback";
+                return;
+            }
+            selectedOption = null;
+            feedbackMessage.textContent = "";
+            showQuestion();
+            submitBtn.disabled = false;
+            nextBtn.disabled = true;
+        }
+    </script>
+</body>
+</html>
